@@ -18,12 +18,18 @@ import {
   learningActivityTable,
   learningCoursesTable,
   learningRoadmapTable,
+  type LearningRole,
 } from "@workspace/db";
 import { and, asc, desc, eq } from "drizzle-orm";
-import { Router, type IRouter } from "express";
+import { Router, type IRouter, type Request } from "express";
+import {
+  requireAuth,
+  requireLearningUserId,
+  requireRole,
+} from "../middlewares/requireAuth";
 
 const router: IRouter = Router();
-const learnerId = "demo-learner";
+router.use(requireAuth);
 
 const sampleCourses = [
   {
@@ -121,41 +127,71 @@ const sampleCompetencies = [
   },
 ];
 
-let seedPromise: Promise<void> | undefined;
+let catalogSeedPromise: Promise<void> | undefined;
+const learnerSeedPromises = new Map<string, Promise<void>>();
 const coachRequestWindows = new Map<string, { startedAt: number; count: number }>();
 const coachWindowMs = 60_000;
 const coachRequestLimit = 10;
 
-async function ensureSeedData(): Promise<void> {
-  if (!seedPromise) {
-    seedPromise = seedData().catch((error: unknown) => {
-      seedPromise = undefined;
+function getLearnerId(req: Request): string {
+  return requireLearningUserId(req);
+}
+
+function getUserRole(req: Request): LearningRole {
+  if (!req.learningUserRole) {
+    throw new Error("Learning route executed without a verified role.");
+  }
+  return req.learningUserRole;
+}
+
+async function ensureCatalogSeedData(): Promise<void> {
+  if (!catalogSeedPromise) {
+    catalogSeedPromise = seedCatalogData().catch((error: unknown) => {
+      catalogSeedPromise = undefined;
       throw error;
     });
   }
-  return seedPromise;
+  return catalogSeedPromise;
 }
 
-async function seedData(): Promise<void> {
+async function ensureSeedData(learnerId: string): Promise<void> {
+  await ensureCatalogSeedData();
+  let seedPromise = learnerSeedPromises.get(learnerId);
+  if (!seedPromise) {
+    seedPromise = seedLearnerData(learnerId).catch((error: unknown) => {
+      learnerSeedPromises.delete(learnerId);
+      throw error;
+    });
+    learnerSeedPromises.set(learnerId, seedPromise);
+  }
+  await seedPromise;
+}
+
+async function seedCatalogData(): Promise<void> {
   const existingCourses = await db
     .select({ id: learningCoursesTable.id })
     .from(learningCoursesTable)
     .limit(1);
 
-  let courses = await db.select().from(learningCoursesTable);
   if (existingCourses.length === 0) {
-    courses = await db
+    await db
       .insert(learningCoursesTable)
       .values(sampleCourses)
       .returning();
   }
+}
 
+async function seedLearnerData(learnerId: string): Promise<void> {
+  const courses = await db.select().from(learningCoursesTable);
   const existingCompetencies = await db
     .select({ id: competenciesTable.id })
     .from(competenciesTable)
+    .where(eq(competenciesTable.learnerId, learnerId))
     .limit(1);
   if (existingCompetencies.length === 0) {
-    await db.insert(competenciesTable).values(sampleCompetencies);
+    await db
+      .insert(competenciesTable)
+      .values(sampleCompetencies.map((competency) => ({ ...competency, learnerId })));
   }
 
   const existingRoadmap = await db
@@ -254,7 +290,7 @@ async function seedData(): Promise<void> {
   }
 }
 
-async function getCourses() {
+async function getCourses(learnerId: string) {
   const rows = await db
     .select({
       id: learningCoursesTable.id,
@@ -284,11 +320,16 @@ async function getCourses() {
   }));
 }
 
-router.get("/learning/dashboard", async (_req, res): Promise<void> => {
-  await ensureSeedData();
+router.get("/learning/dashboard", async (req, res): Promise<void> => {
+  const learnerId = getLearnerId(req);
+  await ensureSeedData(learnerId);
   const [courses, competencies, activities] = await Promise.all([
-    getCourses(),
-    db.select().from(competenciesTable),
+    getCourses(learnerId),
+    db
+      .select()
+      .from(competenciesTable)
+      .where(eq(competenciesTable.learnerId, learnerId))
+      .orderBy(asc(competenciesTable.id)),
     db
       .select()
       .from(learningActivityTable)
@@ -356,9 +397,12 @@ router.get("/learning/dashboard", async (_req, res): Promise<void> => {
   res.json(
     GetLearningDashboardResponse.parse({
       learner: {
-        name: "Alex Morgan",
-        role: "Learner",
-        department: "Product & Engineering",
+        name: "Learner",
+        role: getUserRole(req)
+          .split("_")
+          .map((part) => part[0].toUpperCase() + part.slice(1))
+          .join(" "),
+        department: "Not assigned",
         streakDays: 12,
       },
       stats: {
@@ -376,22 +420,26 @@ router.get("/learning/dashboard", async (_req, res): Promise<void> => {
   );
 });
 
-router.get("/learning/courses", async (_req, res): Promise<void> => {
-  await ensureSeedData();
-  res.json(ListLearningCoursesResponse.parse(await getCourses()));
+router.get("/learning/courses", async (req, res): Promise<void> => {
+  const learnerId = getLearnerId(req);
+  await ensureSeedData(learnerId);
+  res.json(ListLearningCoursesResponse.parse(await getCourses(learnerId)));
 });
 
-router.get("/learning/competencies", async (_req, res): Promise<void> => {
-  await ensureSeedData();
+router.get("/learning/competencies", async (req, res): Promise<void> => {
+  const learnerId = getLearnerId(req);
+  await ensureSeedData(learnerId);
   const competencies = await db
     .select()
     .from(competenciesTable)
+    .where(eq(competenciesTable.learnerId, learnerId))
     .orderBy(asc(competenciesTable.id));
   res.json(ListCompetenciesResponse.parse(competencies));
 });
 
-router.get("/learning/roadmap", async (_req, res): Promise<void> => {
-  await ensureSeedData();
+router.get("/learning/roadmap", async (req, res): Promise<void> => {
+  const learnerId = getLearnerId(req);
+  await ensureSeedData(learnerId);
   const roadmap = await db
     .select()
     .from(learningRoadmapTable)
@@ -400,8 +448,9 @@ router.get("/learning/roadmap", async (_req, res): Promise<void> => {
   res.json(GetLearningRoadmapResponse.parse(roadmap));
 });
 
-router.get("/learning/activity", async (_req, res): Promise<void> => {
-  await ensureSeedData();
+router.get("/learning/activity", async (req, res): Promise<void> => {
+  const learnerId = getLearnerId(req);
+  await ensureSeedData(learnerId);
   const activity = await db
     .select()
     .from(learningActivityTable)
@@ -413,8 +462,10 @@ router.get("/learning/activity", async (_req, res): Promise<void> => {
 
 router.patch(
   "/learning/courses/:courseId/progress",
+  requireRole("learner"),
   async (req, res): Promise<void> => {
-    await ensureSeedData();
+    const learnerId = getLearnerId(req);
+    await ensureSeedData(learnerId);
     const params = UpdateCourseProgressParams.safeParse(req.params);
     const body = UpdateCourseProgressBody.safeParse(req.body);
     if (!params.success) {
@@ -497,7 +548,10 @@ router.patch(
   },
 );
 
-router.post("/gemini/learning-coach", async (req, res): Promise<void> => {
+router.post(
+  "/gemini/learning-coach",
+  requireRole("learner"),
+  async (req, res): Promise<void> => {
   const body = AskLearningCoachBody.safeParse(req.body);
   if (!body.success) {
     res.status(400).json({ error: body.error.message });
@@ -550,6 +604,7 @@ router.post("/gemini/learning-coach", async (req, res): Promise<void> => {
     req.log.error({ err: error }, "AI learning coach request failed");
     res.status(502).json({ error: "The AI learning coach is temporarily unavailable." });
   }
-});
+  },
+);
 
 export default router;

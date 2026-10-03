@@ -11,6 +11,7 @@ Fieldnote helps learners understand competency gaps, follow a personalized roadm
 - `pnpm --filter @workspace/db run push` — apply development schema changes.
 - `GEMINI_API_KEY` — server-side secret required for AI coach responses.
 - `ALLOWED_ORIGINS` — optional comma-separated origin allowlist for cross-origin API clients; same-origin app requests do not need it.
+- `LEARNING_ROLE_ASSIGNMENTS` — optional comma-separated `clerkUserId=role` assignments (`learner`, `trainer`, `department_head`, or `admin`). Roles are never self-selected in the app.
 
 ## Stack
 
@@ -24,9 +25,9 @@ The supplied brief requested Python/FastAPI and MySQL. This first app build uses
 
 ## Product scope
 
-The current learner-focused release includes a dashboard, course catalog, competency gaps, a personalized roadmap, persistent demo-learner progress, recent activity, and a Gemini learning coach. The initial course and competency records are seed data.
+The learner experience includes a dashboard, course catalog, private competency profile, personalized roadmap, course progress, recent activity, and a Gemini learning coach. Clerk sign-in is required for learning routes. Each account receives its own progress, competency, roadmap, and activity records; course descriptions remain a shared catalog. New accounts default to the learner role.
 
-This is not yet a production enterprise learning platform. There is no sign-in, user-specific data isolation, enforced role-based access, admin/trainer/department-head workspace, file analysis, assessment engine, certificates, or reporting/export workflow. Progress belongs to one shared demo learner until authentication and ownership are implemented.
+The API enforces authentication, scopes learner data by verified Clerk user ID, and restricts learner progress updates and coach requests to the learner role. Administrators can assign roles with `LEARNING_ROLE_ASSIGNMENTS`; the app does not yet include role-management screens or trainer, department-head, or admin workspaces. File analysis, assessments, certificates, and reporting/export workflows are also not implemented.
 
 ## Source of truth
 
