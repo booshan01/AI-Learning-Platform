@@ -10,6 +10,10 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: learning
+    description: Learner dashboard, courses, competencies, roadmap, and progress
+  - name: ai
+    description: AI learning coach
 paths:
   /healthz:
     get:
@@ -24,6 +28,124 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /learning/dashboard:
+    get:
+      operationId: getLearningDashboard
+      tags: [learning]
+      summary: Get learner dashboard
+      responses:
+        "200":
+          description: Learner overview and learning recommendations
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningDashboard"
+  /learning/courses:
+    get:
+      operationId: listLearningCourses
+      tags: [learning]
+      summary: List available courses
+      responses:
+        "200":
+          description: Courses and learner progress
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningCourse"
+  /learning/competencies:
+    get:
+      operationId: listCompetencies
+      tags: [learning]
+      summary: List assessed competencies
+      responses:
+        "200":
+          description: Competencies with current and target levels
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Competency"
+  /learning/roadmap:
+    get:
+      operationId: getLearningRoadmap
+      tags: [learning]
+      summary: Get personalized learning roadmap
+      responses:
+        "200":
+          description: Ordered learning path
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RoadmapStep"
+  /learning/activity:
+    get:
+      operationId: listLearningActivity
+      tags: [learning]
+      summary: List recent learning activity
+      responses:
+        "200":
+          description: Recent activity feed
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/LearningActivity"
+  /learning/courses/{courseId}/progress:
+    patch:
+      operationId: updateCourseProgress
+      tags: [learning]
+      summary: Update progress for a course
+      parameters:
+        - name: courseId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProgressUpdate"
+      responses:
+        "200":
+          description: Updated course progress
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CourseProgress"
+        "400":
+          description: Invalid progress value
+        "404":
+          description: Course not found
+  /gemini/learning-coach:
+    post:
+      operationId: askLearningCoach
+      tags: [ai]
+      summary: Ask the AI learning coach
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LearningCoachInput"
+      responses:
+        "200":
+          description: Coaching response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningCoachReply"
+        "400":
+          description: Invalid request
+        "502":
+          description: AI provider returned an error
 components:
   schemas:
     HealthStatus:
@@ -33,4 +155,104 @@ components:
           type: string
       required:
         - status
+    LearnerProfile:
+      type: object
+      required: [name, role, department, streakDays]
+      properties:
+        name: { type: string }
+        role: { type: string }
+        department: { type: string }
+        streakDays: { type: integer }
+    LearningStats:
+      type: object
+      required: [learningHours, completedCourses, inProgressCourses, readinessScore]
+      properties:
+        learningHours: { type: number }
+        completedCourses: { type: integer }
+        inProgressCourses: { type: integer }
+        readinessScore: { type: integer }
+    LearningCourse:
+      type: object
+      required: [id, title, category, description, instructor, durationHours, level, rating, userProgress, accent]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        category: { type: string }
+        description: { type: string }
+        instructor: { type: string }
+        durationHours: { type: number }
+        level: { type: string }
+        rating: { type: number }
+        userProgress: { type: integer }
+        accent: { type: string }
+    Competency:
+      type: object
+      required: [id, name, category, currentLevel, targetLevel, impact]
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        category: { type: string }
+        currentLevel: { type: integer }
+        targetLevel: { type: integer }
+        impact: { type: string }
+    RoadmapStep:
+      type: object
+      required: [id, courseId, title, category, estimatedHours, status, position]
+      properties:
+        id: { type: integer }
+        courseId: { type: integer }
+        title: { type: string }
+        category: { type: string }
+        estimatedHours: { type: number }
+        status: { type: string }
+        position: { type: integer }
+    LearningActivity:
+      type: object
+      required: [id, title, detail, kind, occurredAt]
+      properties:
+        id: { type: integer }
+        title: { type: string }
+        detail: { type: string }
+        kind: { type: string }
+        occurredAt: { type: string, format: date-time }
+    LearningDashboard:
+      type: object
+      required: [learner, stats, competencies, recommendedCourses, activity, weeklyHours]
+      properties:
+        learner: { $ref: "#/components/schemas/LearnerProfile" }
+        stats: { $ref: "#/components/schemas/LearningStats" }
+        competencies:
+          type: array
+          items: { $ref: "#/components/schemas/Competency" }
+        recommendedCourses:
+          type: array
+          items: { $ref: "#/components/schemas/LearningCourse" }
+        activity:
+          type: array
+          items: { $ref: "#/components/schemas/LearningActivity" }
+        weeklyHours:
+          type: array
+          items: { type: number }
+    ProgressUpdate:
+      type: object
+      required: [percentComplete]
+      properties:
+        percentComplete: { type: integer, minimum: 0, maximum: 100 }
+    CourseProgress:
+      type: object
+      required: [courseId, percentComplete]
+      properties:
+        courseId: { type: integer }
+        percentComplete: { type: integer }
+    LearningCoachInput:
+      type: object
+      required: [question]
+      properties:
+        question: { type: string, minLength: 2, maxLength: 2000 }
+        context: { type: string, maxLength: 4000 }
+    LearningCoachReply:
+      type: object
+      required: [answer]
+      properties:
+        answer: { type: string }
 

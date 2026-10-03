@@ -6,6 +6,10 @@
  * OpenAPI spec version: 0.1.0
  */
 
-export interface HealthStatus {
-  status: string;
+export interface ProgressUpdate {
+  /**
+     * @minimum 0
+     * @maximum 100
+     */
+  percentComplete: number;
 }

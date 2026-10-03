@@ -1,0 +1,591 @@
+You are a senior software architect, UI/UX designer, full-stack developer, AI engineer, DevOps engineer, database architect, security expert, and QA engineer.
+
+Your task is to build a COMPLETE, PRODUCTION-READY AI Learning Platform from scratch.
+
+The final output must be a fully functional application with no placeholders, no dummy pages, and no incomplete features.
+
+====================================================
+PROJECT NAME
+====================================================
+
+AI Learning Platform
+(AI Powered Competency Gap Analysis and Personalized Learning Platform)
+
+====================================================
+PROJECT OBJECTIVE
+====================================================
+
+Develop an AI-powered learning platform that identifies users' competency gaps, generates personalized learning paths, recommends training courses, tracks learning progress, and provides AI-powered assessments and analytics.
+
+The application must be enterprise-grade, modern, secure, responsive, scalable, and deployment-ready.
+
+====================================================
+TECH STACK
+====================================================
+
+Frontend
+- HTML5
+- CSS3
+- JavaScript (ES6+)
+- Bootstrap 5
+
+Backend
+- Python
+- FastAPI
+
+Database
+- MySQL
+
+Authentication
+- JWT Authentication
+- Refresh Tokens
+- Password Hashing (bcrypt)
+- Email Verification
+- Forgot Password
+- Reset Password
+- OTP Verification
+
+AI
+- Google Gemini API
+- HuggingFace Transformers
+- Sentence Transformers
+- Scikit-learn
+
+Charts
+- Chart.js
+
+Icons
+- Font Awesome
+
+Documentation
+- Swagger/OpenAPI
+
+Deployment
+- Docker
+- GitHub
+- Render
+- Railway
+- Netlify/Vercel (Frontend)
+
+====================================================
+DESIGN REQUIREMENTS
+====================================================
+
+Create a premium modern UI.
+
+Use
+
+• Glassmorphism
+• Gradient backgrounds
+• Smooth animations
+• Dark Mode
+• Light Mode
+• Responsive Design
+• Mobile First
+• Modern Cards
+• Interactive Dashboard
+• Beautiful Charts
+• Notifications
+• Toast Messages
+• Loading Skeletons
+• Animated Sidebar
+• Attractive Login Screen
+
+The application should look like a premium SaaS product.
+
+====================================================
+USER ROLES
+====================================================
+
+Admin
+
+Trainer
+
+Department Head
+
+Learner
+
+Each role must have separate permissions.
+
+====================================================
+AUTHENTICATION
+====================================================
+
+Register
+
+Login
+
+Logout
+
+Refresh Token
+
+Remember Me
+
+Email Verification
+
+Forgot Password
+
+Reset Password
+
+OTP Verification
+
+Profile Management
+
+Role Based Access Control
+
+====================================================
+PROFILE
+====================================================
+
+Each user profile must include
+
+Name
+
+Email
+
+Phone
+
+Department
+
+Designation
+
+Cadre
+
+Experience
+
+Skills
+
+Interests
+
+Career Goal
+
+Current Competencies
+
+Profile Picture
+
+====================================================
+AI FEATURES
+====================================================
+
+AI Competency Gap Analysis
+
+AI Skill Recommendation
+
+AI Personalized Learning Roadmap
+
+AI Quiz Generation
+
+AI MCQ Generation
+
+AI PDF Analysis
+
+AI PPT Analysis
+
+AI DOCX Analysis
+
+AI Text Analysis
+
+AI Learning Recommendation
+
+AI Course Recommendation
+
+AI Performance Prediction
+
+AI Career Prediction
+
+AI Readiness Score
+
+AI Learning Analytics
+
+AI Chatbot
+
+AI Resume Skill Analysis
+
+AI Learning Assistant
+
+====================================================
+UPLOAD FEATURES
+====================================================
+
+Users can upload
+
+PDF
+
+Word
+
+PowerPoint
+
+Excel
+
+Images
+
+Text Files
+
+The AI should automatically
+
+Extract text
+
+Summarize
+
+Generate MCQs
+
+Generate Quiz
+
+Generate Flashcards
+
+Generate Notes
+
+Generate Learning Path
+
+====================================================
+LEARNING FEATURES
+====================================================
+
+Dashboard
+
+My Learning
+
+Recommended Courses
+
+Learning Progress
+
+Skill Gap Report
+
+Assessments
+
+Certificates
+
+Bookmarks
+
+Notes
+
+Downloads
+
+Leaderboard
+
+Achievements
+
+====================================================
+ADMIN FEATURES
+====================================================
+
+Dashboard
+
+Manage Users
+
+Manage Roles
+
+Manage Departments
+
+Manage Courses
+
+Manage Competencies
+
+Manage Skills
+
+Manage Assessments
+
+Manage Quiz
+
+Manage AI Models
+
+Reports
+
+Analytics
+
+Settings
+
+====================================================
+TRAINER FEATURES
+====================================================
+
+Create Courses
+
+Manage Lessons
+
+Assignments
+
+Quiz
+
+Student Progress
+
+Certificates
+
+Analytics
+
+====================================================
+DEPARTMENT HEAD
+====================================================
+
+Department Dashboard
+
+Department Analytics
+
+Skill Reports
+
+Learning Progress
+
+Competency Dashboard
+
+====================================================
+ASSESSMENT SYSTEM
+====================================================
+
+MCQ
+
+True False
+
+Coding Questions
+
+Short Answers
+
+Essay Questions
+
+Random Question Generator
+
+Timer
+
+Auto Evaluation
+
+Leaderboard
+
+Certificates
+
+====================================================
+DATABASE
+====================================================
+
+Create complete normalized MySQL database.
+
+Include
+
+Users
+
+Roles
+
+Departments
+
+Courses
+
+Modules
+
+Lessons
+
+Assessments
+
+Questions
+
+Answers
+
+Certificates
+
+Notifications
+
+Logs
+
+Progress
+
+Skills
+
+Competencies
+
+Recommendations
+
+Learning History
+
+====================================================
+API
+====================================================
+
+Develop complete REST API
+
+Authentication
+
+Users
+
+Roles
+
+Courses
+
+Competencies
+
+Assessments
+
+Recommendations
+
+Analytics
+
+AI
+
+Dashboard
+
+Reports
+
+Uploads
+
+Certificates
+
+Notifications
+
+====================================================
+SECURITY
+====================================================
+
+JWT
+
+Bcrypt
+
+HTTPS Ready
+
+CORS
+
+Rate Limiting
+
+Input Validation
+
+SQL Injection Protection
+
+XSS Protection
+
+CSRF Protection
+
+Secure Headers
+
+Audit Logs
+
+====================================================
+DASHBOARD
+====================================================
+
+Interactive Dashboard
+
+Charts
+
+Statistics
+
+Recent Activities
+
+Notifications
+
+Upcoming Courses
+
+Progress Tracking
+
+Learning Calendar
+
+====================================================
+SEARCH
+====================================================
+
+Global Search
+
+Advanced Filters
+
+Sorting
+
+Pagination
+
+====================================================
+SETTINGS
+====================================================
+
+Dark Mode
+
+Language
+
+Theme
+
+Notification Preferences
+
+Account Settings
+
+Security Settings
+
+====================================================
+EMAIL
+====================================================
+
+Registration Email
+
+OTP Email
+
+Reset Password Email
+
+Course Completion Email
+
+Certificate Email
+
+====================================================
+REPORTS
+====================================================
+
+Generate
+
+PDF
+
+Excel
+
+CSV
+
+Printable Reports
+
+====================================================
+TESTING
+====================================================
+
+Backend Tests
+
+Frontend Tests
+
+API Tests
+
+Unit Tests
+
+Integration Tests
+
+====================================================
+DEPLOYMENT
+====================================================
+
+Generate
+
+Dockerfile
+
+docker-compose.yml
+
+requirements.txt
+
+README.md
+
+.env.example
+
+GitHub Actions
+
+Deployment Scripts
+
+====================================================
+FINAL REQUIREMENTS
+====================================================
+
+The generated application MUST:
+
+• Be completely functional.
+• Have no placeholder pages.
+• Have no TODO comments.
+• Include complete backend and frontend.
+• Include complete MySQL database.
+• Include complete authentication.
+• Include complete AI integration.
+• Include complete documentation.
+• Include sample data.
+• Include API documentation.
+• Be responsive.
+• Be production-ready.
+• Build successfully without errors.
+• Run locally with one command.
+• Be deployable to Render or Railway.
+• Be suitable for GitHub.
+• Follow clean architecture and best coding practices.
+• Use modular folder structures.
+• Include comments where necessary.
+• Deliver a polished enterprise-quality application.
