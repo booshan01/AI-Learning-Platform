@@ -96,6 +96,37 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/LearningActivity"
+  /learning/settings:
+    get:
+      operationId: getLearningSettings
+      tags: [learning]
+      summary: Get learner learning preferences
+      responses:
+        "200":
+          description: Saved study goal and coach style
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningSettings"
+    patch:
+      operationId: updateLearningSettings
+      tags: [learning]
+      summary: Update learner learning preferences
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LearningSettingsUpdate"
+      responses:
+        "200":
+          description: Updated study goal and coach style
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningSettings"
+        "400":
+          description: Invalid learning preferences
   /learning/courses/{courseId}/progress:
     patch:
       operationId: updateCourseProgress
@@ -235,6 +266,22 @@ components:
         weeklyHours:
           type: array
           items: { type: number }
+    LearningSettings:
+      type: object
+      required: [weeklyStudyGoalHours, coachStyle]
+      properties:
+        weeklyStudyGoalHours: { type: integer, minimum: 1, maximum: 20 }
+        coachStyle:
+          type: string
+          enum: [supportive, concise, challenging]
+    LearningSettingsUpdate:
+      type: object
+      required: [weeklyStudyGoalHours, coachStyle]
+      properties:
+        weeklyStudyGoalHours: { type: integer, minimum: 1, maximum: 20 }
+        coachStyle:
+          type: string
+          enum: [supportive, concise, challenging]
     ProgressUpdate:
       type: object
       required: [percentComplete]

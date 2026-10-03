@@ -125,6 +125,41 @@ export const ListLearningActivityResponse = zod.array(ListLearningActivityRespon
 
 
 /**
+ * @summary Get learner learning preferences
+ */
+export const getLearningSettingsResponseWeeklyStudyGoalHoursMax = 20;
+
+
+
+export const GetLearningSettingsResponse = zod.object({
+  "weeklyStudyGoalHours": zod.number().int().min(1).max(getLearningSettingsResponseWeeklyStudyGoalHoursMax),
+  "coachStyle": zod.enum(['supportive', 'concise', 'challenging'])
+})
+
+
+/**
+ * @summary Update learner learning preferences
+ */
+export const updateLearningSettingsBodyWeeklyStudyGoalHoursMax = 20;
+
+
+
+export const UpdateLearningSettingsBody = zod.object({
+  "weeklyStudyGoalHours": zod.number().int().min(1).max(updateLearningSettingsBodyWeeklyStudyGoalHoursMax),
+  "coachStyle": zod.enum(['supportive', 'concise', 'challenging'])
+})
+
+export const updateLearningSettingsResponseWeeklyStudyGoalHoursMax = 20;
+
+
+
+export const UpdateLearningSettingsResponse = zod.object({
+  "weeklyStudyGoalHours": zod.number().int().min(1).max(updateLearningSettingsResponseWeeklyStudyGoalHoursMax),
+  "coachStyle": zod.enum(['supportive', 'concise', 'challenging'])
+})
+
+
+/**
  * @summary Update progress for a course
  */
 export const UpdateCourseProgressParams = zod.object({

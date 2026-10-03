@@ -17,12 +17,32 @@ export const learningRoleEnum = pgEnum("learning_role", [
   "admin",
 ]);
 
+export const learningCoachStyleEnum = pgEnum("learning_coach_style", [
+  "supportive",
+  "concise",
+  "challenging",
+]);
+
 export const learningUsersTable = pgTable("learning_users", {
   id: text("id").primaryKey(),
   role: learningRoleEnum("role").notNull().default("learner"),
   createdAt: timestamp("created_at", { withTimezone: true })
     .notNull()
     .defaultNow(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .notNull()
+    .defaultNow()
+    .$onUpdate(() => new Date()),
+});
+
+export const learningPreferencesTable = pgTable("learning_preferences", {
+  learnerId: text("learner_id")
+    .primaryKey()
+    .references(() => learningUsersTable.id, { onDelete: "cascade" }),
+  weeklyStudyGoalHours: integer("weekly_study_goal_hours").notNull().default(5),
+  coachStyle: learningCoachStyleEnum("coach_style")
+    .notNull()
+    .default("supportive"),
   updatedAt: timestamp("updated_at", { withTimezone: true })
     .notNull()
     .defaultNow()
@@ -124,3 +144,5 @@ export type CourseProgress = typeof courseProgressTable.$inferSelect;
 export type LearningRoadmapStep = typeof learningRoadmapTable.$inferSelect;
 export type LearningActivity = typeof learningActivityTable.$inferSelect;
 export type LearningRole = (typeof learningRoleEnum.enumValues)[number];
+export type LearningCoachStyle =
+  (typeof learningCoachStyleEnum.enumValues)[number];

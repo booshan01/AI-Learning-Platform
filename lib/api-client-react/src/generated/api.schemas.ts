@@ -72,6 +72,42 @@ export interface LearningDashboard {
   weeklyHours: number[];
 }
 
+export type LearningSettingsCoachStyle = typeof LearningSettingsCoachStyle[keyof typeof LearningSettingsCoachStyle];
+
+
+export const LearningSettingsCoachStyle = {
+  supportive: 'supportive',
+  concise: 'concise',
+  challenging: 'challenging',
+} as const;
+
+export interface LearningSettings {
+  /**
+     * @minimum 1
+     * @maximum 20
+     */
+  weeklyStudyGoalHours: number;
+  coachStyle: LearningSettingsCoachStyle;
+}
+
+export type LearningSettingsUpdateCoachStyle = typeof LearningSettingsUpdateCoachStyle[keyof typeof LearningSettingsUpdateCoachStyle];
+
+
+export const LearningSettingsUpdateCoachStyle = {
+  supportive: 'supportive',
+  concise: 'concise',
+  challenging: 'challenging',
+} as const;
+
+export interface LearningSettingsUpdate {
+  /**
+     * @minimum 1
+     * @maximum 20
+     */
+  weeklyStudyGoalHours: number;
+  coachStyle: LearningSettingsUpdateCoachStyle;
+}
+
 export interface ProgressUpdate {
   /**
      * @minimum 0

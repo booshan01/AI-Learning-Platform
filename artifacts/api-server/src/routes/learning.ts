@@ -3,6 +3,7 @@ import {
   AskLearningCoachBody,
   AskLearningCoachResponse,
   GetLearningDashboardResponse,
+  GetLearningSettingsResponse,
   GetLearningRoadmapResponse,
   ListCompetenciesResponse,
   ListLearningActivityResponse,
@@ -10,14 +11,18 @@ import {
   UpdateCourseProgressBody,
   UpdateCourseProgressParams,
   UpdateCourseProgressResponse,
+  UpdateLearningSettingsBody,
+  UpdateLearningSettingsResponse,
 } from "@workspace/api-zod";
 import {
   competenciesTable,
   courseProgressTable,
   db,
   learningActivityTable,
+  learningPreferencesTable,
   learningCoursesTable,
   learningRoadmapTable,
+  type LearningCoachStyle,
   type LearningRole,
 } from "@workspace/db";
 import { and, asc, desc, eq } from "drizzle-orm";
@@ -132,6 +137,14 @@ const learnerSeedPromises = new Map<string, Promise<void>>();
 const coachRequestWindows = new Map<string, { startedAt: number; count: number }>();
 const coachWindowMs = 60_000;
 const coachRequestLimit = 10;
+const coachStyleInstructions: Record<LearningCoachStyle, string> = {
+  supportive:
+    "Use a warm, patient, encouraging voice. Recognize effort and make the next step feel manageable.",
+  concise:
+    "Be direct and concise. Prioritize the most useful next step and avoid unnecessary explanation.",
+  challenging:
+    "Offer respectful challenge, help the learner examine assumptions, and suggest a stretch step without shaming.",
+};
 
 function getLearnerId(req: Request): string {
   return requireLearningUserId(req);
@@ -142,6 +155,25 @@ function getUserRole(req: Request): LearningRole {
     throw new Error("Learning route executed without a verified role.");
   }
   return req.learningUserRole;
+}
+
+async function getOrCreateLearningPreferences(learnerId: string) {
+  const [created] = await db
+    .insert(learningPreferencesTable)
+    .values({ learnerId })
+    .onConflictDoNothing()
+    .returning();
+  if (created) return created;
+
+  const [existing] = await db
+    .select()
+    .from(learningPreferencesTable)
+    .where(eq(learningPreferencesTable.learnerId, learnerId))
+    .limit(1);
+  if (!existing) {
+    throw new Error("Could not create or load learner preferences.");
+  }
+  return existing;
 }
 
 async function ensureCatalogSeedData(): Promise<void> {
@@ -460,6 +492,41 @@ router.get("/learning/activity", async (req, res): Promise<void> => {
   res.json(ListLearningActivityResponse.parse(activity));
 });
 
+router.get("/learning/settings", async (req, res): Promise<void> => {
+  const preferences = await getOrCreateLearningPreferences(getLearnerId(req));
+  res.json(
+    GetLearningSettingsResponse.parse({
+      weeklyStudyGoalHours: preferences.weeklyStudyGoalHours,
+      coachStyle: preferences.coachStyle,
+    }),
+  );
+});
+
+router.patch("/learning/settings", async (req, res): Promise<void> => {
+  const body = UpdateLearningSettingsBody.safeParse(req.body);
+  if (!body.success) {
+    res.status(400).json({ error: body.error.message });
+    return;
+  }
+
+  const learnerId = getLearnerId(req);
+  const [preferences] = await db
+    .insert(learningPreferencesTable)
+    .values({ learnerId, ...body.data })
+    .onConflictDoUpdate({
+      target: learningPreferencesTable.learnerId,
+      set: { ...body.data, updatedAt: new Date() },
+    })
+    .returning();
+
+  res.json(
+    UpdateLearningSettingsResponse.parse({
+      weeklyStudyGoalHours: preferences.weeklyStudyGoalHours,
+      coachStyle: preferences.coachStyle,
+    }),
+  );
+});
+
 router.patch(
   "/learning/courses/:courseId/progress",
   requireRole("learner"),
@@ -582,11 +649,13 @@ router.post(
     return;
   }
 
+  const preferences = await getOrCreateLearningPreferences(getLearnerId(req));
   try {
     const client = new GoogleGenAI({ apiKey });
     const prompt = [
-      "You are an encouraging, practical workplace learning coach.",
+      "You are a practical workplace learning coach.",
       "Give focused, actionable guidance. Do not claim to know details that are not provided.",
+      coachStyleInstructions[preferences.coachStyle],
       body.data.context ? `Learner context: ${body.data.context}` : "",
       `Learner question: ${body.data.question}`,
     ]

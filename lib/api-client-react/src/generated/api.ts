@@ -28,6 +28,8 @@ import type {
   LearningCoachReply,
   LearningCourse,
   LearningDashboard,
+  LearningSettings,
+  LearningSettingsUpdate,
   ProgressUpdate,
   RoadmapStep
 } from './api.schemas';
@@ -521,6 +523,171 @@ export function useListLearningActivity<TData = Awaited<ReturnType<typeof listLe
 
 
 
+
+export const getGetLearningSettingsUrl = () => {
+
+
+
+
+  return `/api/learning/settings`
+}
+
+/**
+ * @summary Get learner learning preferences
+ */
+export const getLearningSettings = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearningSettings> => {
+
+  return customFetch<LearningSettings>(getGetLearningSettingsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLearningSettingsQueryKey = () => {
+    return [
+    `/api/learning/settings`
+    ] as const;
+    }
+
+
+export const getGetLearningSettingsQueryOptions = <TData = Awaited<ReturnType<typeof getLearningSettings>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearningSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLearningSettingsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLearningSettings>>> = ({ signal }) => getLearningSettings({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLearningSettings>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLearningSettingsQueryResult = NonNullable<Awaited<ReturnType<typeof getLearningSettings>>>
+export type GetLearningSettingsQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get learner learning preferences
+ */
+
+export function useGetLearningSettings<TData = Awaited<ReturnType<typeof getLearningSettings>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearningSettings>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLearningSettingsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateLearningSettingsUrl = () => {
+
+
+
+
+  return `/api/learning/settings`
+}
+
+/**
+ * @summary Update learner learning preferences
+ */
+export const updateLearningSettings = async (learningSettingsUpdate: LearningSettingsUpdate, options?: Parameters<typeof customFetch>[1]): Promise<LearningSettings> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LearningSettings>(getUpdateLearningSettingsUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(learningSettingsUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateLearningSettingsMutationKey = () => ['updateLearningSettings'] as const;
+
+export const getUpdateLearningSettingsMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearningSettings>>, TError,UpdateLearningSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLearningSettings>>, TError,UpdateLearningSettingsMutationVariables, TContext> => {
+
+const mutationKey = getUpdateLearningSettingsMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLearningSettings>>, UpdateLearningSettingsMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateLearningSettings(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLearningSettingsMutationResult = NonNullable<Awaited<ReturnType<typeof updateLearningSettings>>>
+    export type UpdateLearningSettingsMutationBody = BodyType<LearningSettingsUpdate>
+    export type UpdateLearningSettingsMutationError = ErrorType<void>
+    export type UpdateLearningSettingsMutationVariables = {data: BodyType<LearningSettingsUpdate>}
+
+    /**
+ * @summary Update learner learning preferences
+ */
+export const useUpdateLearningSettings = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearningSettings>>, TError,UpdateLearningSettingsMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateLearningSettings>>,
+        TError,
+        UpdateLearningSettingsMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateLearningSettingsMutationOptions(options));
+    }
 
 export const getUpdateCourseProgressUrl = (courseId: number,) => {
 

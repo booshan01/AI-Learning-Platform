@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useAuth, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
@@ -11,15 +11,15 @@ import { Link, Redirect, Route, Switch, useLocation, Router as WouterRouter } fr
 import {
   ArrowRight, ArrowUpRight, BookOpen, BrainCircuit, Check, CheckCircle2,
   ChevronRight, CircleHelp, Clock3, Flame, GraduationCap, LayoutDashboard, ListChecks,
-  LogOut, Moon, Search, Send, Sparkles, Sun, Target, TrendingUp, Trophy, type LucideIcon,
+  LogOut, Moon, Search, Send, Settings as SettingsIcon, Sparkles, Sun, Target, TrendingUp, Trophy, type LucideIcon,
 } from 'lucide-react';
 import {
-  getGetLearningDashboardQueryKey, getGetLearningRoadmapQueryKey,
+  getGetLearningDashboardQueryKey, getGetLearningRoadmapQueryKey, getGetLearningSettingsQueryKey,
   getListLearningCoursesQueryKey, getListCompetenciesQueryKey, getListLearningActivityQueryKey,
-  useGetLearningDashboard, useListLearningCourses, useListCompetencies, useGetLearningRoadmap,
+  useGetLearningDashboard, useGetLearningSettings, useUpdateLearningSettings, useListLearningCourses, useListCompetencies, useGetLearningRoadmap,
   useListLearningActivity, useUpdateCourseProgress, useAskLearningCoach,
 } from '@workspace/api-client-react';
-import type { Competency, LearningActivity, LearningCourse, RoadmapStep } from '@workspace/api-client-react';
+import type { Competency, LearningActivity, LearningCourse, LearningSettings, RoadmapStep } from '@workspace/api-client-react';
 
 const queryClient = new QueryClient();
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -28,6 +28,11 @@ const clerkPubKey = publishableKeyFromHost(
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
 );
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
+type ThemeMode = 'light' | 'dark';
+const ThemeContext = createContext<{
+  mode: ThemeMode;
+  setMode: (mode: ThemeMode) => void;
+} | null>(null);
 const clerkAppearance = {
   theme: shadcn,
   cssLayerName: 'clerk',
@@ -82,6 +87,7 @@ const navItems: { href: string; label: string; icon: LucideIcon }[] = [
   { href: '/skills', label: 'Skill profile', icon: Target },
   { href: '/roadmap', label: 'Your roadmap', icon: ListChecks },
   { href: '/coach', label: 'Learning coach', icon: BrainCircuit },
+  { href: '/settings', label: 'Settings', icon: SettingsIcon },
 ];
 const accents: Record<string, string> = {
   teal: 'bg-[#dcece5] text-[#226b57]', mint: 'bg-[#e4ebc9] text-[#586d25]',
@@ -167,14 +173,17 @@ function AppShell({ children }: { children: ReactNode }) {
   const dashboard = useGetLearningDashboard({ query: { queryKey: getGetLearningDashboardQueryKey() } });
   const learner = dashboard.data?.learner;
   const displayName = user?.fullName || user?.firstName || learner?.name || 'Learner';
-  const toggleTheme = () => {
-    const next = !dark; setDark(next);
-    document.documentElement.classList.toggle('dark', next);
-    localStorage.setItem('learning-theme', next ? 'dark' : 'light');
+  const setThemeMode = (mode: ThemeMode) => {
+    const nextDark = mode === 'dark';
+    setDark(nextDark);
+    document.documentElement.classList.toggle('dark', nextDark);
+    localStorage.setItem('learning-theme', mode);
   };
+  const toggleTheme = () => setThemeMode(dark ? 'light' : 'dark');
   if (typeof document !== 'undefined' && dark) document.documentElement.classList.add('dark');
   const current = navItems.find((item) => item.href === location);
-  return <div className="grain min-h-[100dvh] bg-background text-foreground">
+  return <ThemeContext.Provider value={{ mode: dark ? 'dark' : 'light', setMode: setThemeMode }}>
+    <div className="grain min-h-[100dvh] bg-background text-foreground">
     <aside className="fixed inset-y-0 left-0 z-30 hidden w-[252px] flex-col border-r border-sidebar-border bg-sidebar text-sidebar-foreground lg:flex">
       <Link href="/dashboard" className="flex items-center gap-3 px-7 py-7" data-testid="link-home">
         <span className="grid h-10 w-10 place-items-center rounded-[14px] bg-sidebar-primary text-sidebar-primary-foreground"><GraduationCap size={22} /></span>
@@ -212,10 +221,11 @@ function AppShell({ children }: { children: ReactNode }) {
       </div>
     </header>
     <main className="px-4 pb-28 pt-7 sm:px-7 lg:ml-[252px] lg:px-10 lg:pb-12 lg:pt-9"><div className="mx-auto max-w-[1240px] page-enter">{children}</div></main>
-    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-background/95 px-1 pb-[max(env(safe-area-inset-bottom),8px)] pt-2 backdrop-blur-lg lg:hidden">
-      {navItems.map(({ href, label, icon: Icon }) => <Link key={href} href={href} data-testid={`mobile-nav-${href === '/dashboard' ? 'overview' : href.slice(1)}`} className={`flex flex-col items-center gap-1 py-1 text-[9px] font-semibold ${location === href ? 'text-primary' : 'text-muted-foreground'}`}><Icon size={18} /><span>{label === 'Course library' ? 'Courses' : label === 'Skill profile' ? 'Skills' : label === 'Your roadmap' ? 'Roadmap' : label === 'Learning coach' ? 'Coach' : 'Home'}</span></Link>)}
+    <nav className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-6 border-t border-border bg-background/95 px-1 pb-[max(env(safe-area-inset-bottom),8px)] pt-2 backdrop-blur-lg lg:hidden">
+      {navItems.map(({ href, label, icon: Icon }) => <Link key={href} href={href} data-testid={`mobile-nav-${href === '/dashboard' ? 'overview' : href.slice(1)}`} className={`flex flex-col items-center gap-1 py-1 text-[9px] font-semibold ${location === href ? 'text-primary' : 'text-muted-foreground'}`}><Icon size={18} /><span>{label === 'Course library' ? 'Courses' : label === 'Skill profile' ? 'Skills' : label === 'Your roadmap' ? 'Roadmap' : label === 'Learning coach' ? 'Coach' : label === 'Settings' ? 'Settings' : 'Home'}</span></Link>)}
     </nav>
-  </div>;
+    </div>
+  </ThemeContext.Provider>;
 }
 
 function DashboardPage() {
