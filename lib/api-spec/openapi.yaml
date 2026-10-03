@@ -144,6 +144,8 @@ paths:
                 $ref: "#/components/schemas/LearningCoachReply"
         "400":
           description: Invalid request
+        "429":
+          description: Too many coaching requests
         "502":
           description: AI provider returned an error
 components:

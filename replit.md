@@ -1,45 +1,37 @@
-# [Project name]
+# AI Learning Platform
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Fieldnote helps learners understand competency gaps, follow a personalized roadmap, discover courses, track progress, and get learning guidance from an AI coach.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- The managed `artifacts/learning-platform: web` workflow serves the app at `/`.
+- The managed `artifacts/api-server: API Server` workflow serves the API under `/api`.
+- `pnpm run typecheck` — check all workspace packages.
+- `pnpm --filter @workspace/api-spec run codegen` — regenerate API clients after OpenAPI changes.
+- `pnpm --filter @workspace/db run push` — apply development schema changes.
+- `GEMINI_API_KEY` — server-side secret required for AI coach responses.
+- `ALLOWED_ORIGINS` — optional comma-separated origin allowlist for cross-origin API clients; same-origin app requests do not need it.
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- React, Vite, TypeScript, and Wouter
+- Shared Express 5 API server
+- PostgreSQL and Drizzle ORM
+- OpenAPI contracts with generated Zod validators and React Query hooks
+- Google Gemini API via the server-side `@google/genai` SDK
 
-## Where things live
+The supplied brief requested Python/FastAPI and MySQL. This first app build uses the workspace's existing TypeScript/Express and managed PostgreSQL foundation rather than replacing the runtime or database.
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+## Product scope
 
-## Architecture decisions
+The current learner-focused release includes a dashboard, course catalog, competency gaps, a personalized roadmap, persistent demo-learner progress, recent activity, and a Gemini learning coach. The initial course and competency records are seed data.
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+This is not yet a production enterprise learning platform. There is no sign-in, user-specific data isolation, enforced role-based access, admin/trainer/department-head workspace, file analysis, assessment engine, certificates, or reporting/export workflow. Progress belongs to one shared demo learner until authentication and ownership are implemented.
 
-## Product
+## Source of truth
 
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- `lib/api-spec/openapi.yaml` — API contract
+- `lib/db/src/schema/learning.ts` — learning tables
+- `artifacts/api-server/src/routes/learning.ts` — learning API and seed data
+- `artifacts/learning-platform/src/App.tsx` — app routes and interface
+- `artifacts/learning-platform/src/index.css` — visual theme
