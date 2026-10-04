@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type FormEvent, type ReactNode } from 'react';
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query';
 import { ClerkProvider, SignIn, SignUp, useAuth, useClerk, useUser } from '@clerk/react';
 import { publishableKeyFromHost } from '@clerk/react/internal';
@@ -7,6 +7,8 @@ import { ErrorBoundary } from '@/components/error-boundary';
 import { Toaster } from '@/components/ui/toaster';
 import { TooltipProvider } from '@/components/ui/tooltip';
 import NotFound from '@/pages/not-found';
+import SettingsPage from '@/components/settings-page';
+import { ThemeContext, type ThemeMode } from '@/lib/theme-context';
 import { Link, Redirect, Route, Switch, useLocation, Router as WouterRouter } from 'wouter';
 import {
   ArrowRight, ArrowUpRight, BookOpen, BrainCircuit, Check, CheckCircle2,
@@ -14,12 +16,12 @@ import {
   LogOut, Moon, Search, Send, Settings as SettingsIcon, Sparkles, Sun, Target, TrendingUp, Trophy, type LucideIcon,
 } from 'lucide-react';
 import {
-  getGetLearningDashboardQueryKey, getGetLearningRoadmapQueryKey, getGetLearningSettingsQueryKey,
+  getGetLearningDashboardQueryKey, getGetLearningRoadmapQueryKey,
   getListLearningCoursesQueryKey, getListCompetenciesQueryKey, getListLearningActivityQueryKey,
-  useGetLearningDashboard, useGetLearningSettings, useUpdateLearningSettings, useListLearningCourses, useListCompetencies, useGetLearningRoadmap,
+  useGetLearningDashboard, useListLearningCourses, useListCompetencies, useGetLearningRoadmap,
   useListLearningActivity, useUpdateCourseProgress, useAskLearningCoach,
 } from '@workspace/api-client-react';
-import type { Competency, LearningActivity, LearningCourse, LearningSettings, RoadmapStep } from '@workspace/api-client-react';
+import type { Competency, LearningActivity, LearningCourse, RoadmapStep } from '@workspace/api-client-react';
 
 const queryClient = new QueryClient();
 const basePath = import.meta.env.BASE_URL.replace(/\/$/, '');
@@ -28,11 +30,6 @@ const clerkPubKey = publishableKeyFromHost(
   import.meta.env.VITE_CLERK_PUBLISHABLE_KEY,
 );
 const clerkProxyUrl = import.meta.env.VITE_CLERK_PROXY_URL;
-type ThemeMode = 'light' | 'dark';
-const ThemeContext = createContext<{
-  mode: ThemeMode;
-  setMode: (mode: ThemeMode) => void;
-} | null>(null);
 const clerkAppearance = {
   theme: shadcn,
   cssLayerName: 'clerk',
@@ -550,6 +547,7 @@ function ProtectedWorkspace() {
     <Route path="/skills" component={SkillsPage} />
     <Route path="/roadmap" component={RoadmapPage} />
     <Route path="/coach" component={CoachPage} />
+    <Route path="/settings" component={SettingsPage} />
     <Route path="/account" component={AccountPage} />
     <Route component={NotFound} />
   </Switch></RoutedErrorBoundary></AppShell>;

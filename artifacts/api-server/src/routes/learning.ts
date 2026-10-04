@@ -492,40 +492,52 @@ router.get("/learning/activity", async (req, res): Promise<void> => {
   res.json(ListLearningActivityResponse.parse(activity));
 });
 
-router.get("/learning/settings", async (req, res): Promise<void> => {
-  const preferences = await getOrCreateLearningPreferences(getLearnerId(req));
-  res.json(
-    GetLearningSettingsResponse.parse({
-      weeklyStudyGoalHours: preferences.weeklyStudyGoalHours,
-      coachStyle: preferences.coachStyle,
-    }),
-  );
-});
+router.get(
+  "/learning/settings",
+  requireRole("learner"),
+  async (req, res): Promise<void> => {
+    const preferences = await getOrCreateLearningPreferences(getLearnerId(req));
+    res.json(
+      GetLearningSettingsResponse.parse({
+        weeklyStudyGoalHours: preferences.weeklyStudyGoalHours,
+        coachStyle: preferences.coachStyle,
+      }),
+    );
+  },
+);
 
-router.patch("/learning/settings", async (req, res): Promise<void> => {
-  const body = UpdateLearningSettingsBody.safeParse(req.body);
-  if (!body.success) {
-    res.status(400).json({ error: body.error.message });
-    return;
-  }
+router.patch(
+  "/learning/settings",
+  requireRole("learner"),
+  async (req, res): Promise<void> => {
+    const body = UpdateLearningSettingsBody.safeParse(req.body);
+    if (!body.success) {
+      res.status(400).json({ error: body.error.message });
+      return;
+    }
 
-  const learnerId = getLearnerId(req);
-  const [preferences] = await db
-    .insert(learningPreferencesTable)
-    .values({ learnerId, ...body.data })
-    .onConflictDoUpdate({
-      target: learningPreferencesTable.learnerId,
-      set: { ...body.data, updatedAt: new Date() },
-    })
-    .returning();
+    const learnerId = getLearnerId(req);
+    const [preferences] = await db
+      .insert(learningPreferencesTable)
+      .values({ learnerId, ...body.data })
+      .onConflictDoUpdate({
+        target: learningPreferencesTable.learnerId,
+        set: { ...body.data, updatedAt: new Date() },
+      })
+      .returning();
 
-  res.json(
-    UpdateLearningSettingsResponse.parse({
-      weeklyStudyGoalHours: preferences.weeklyStudyGoalHours,
-      coachStyle: preferences.coachStyle,
-    }),
-  );
-});
+    if (!preferences) {
+      throw new Error("Could not save learner preferences.");
+    }
+
+    res.json(
+      UpdateLearningSettingsResponse.parse({
+        weeklyStudyGoalHours: preferences.weeklyStudyGoalHours,
+        coachStyle: preferences.coachStyle,
+      }),
+    );
+  },
+);
 
 router.patch(
   "/learning/courses/:courseId/progress",

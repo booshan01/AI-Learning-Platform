@@ -25,9 +25,9 @@ The supplied brief requested Python/FastAPI and MySQL. This first app build uses
 
 ## Product scope
 
-The learner experience includes a dashboard, course catalog, private competency profile, personalized roadmap, course progress, recent activity, and a Gemini learning coach. Clerk sign-in is required for learning routes. Each account receives its own progress, competency, roadmap, and activity records; course descriptions remain a shared catalog. New accounts default to the learner role.
+The learner experience includes a dashboard, course catalog, private competency profile, personalized roadmap, course progress, recent activity, a Gemini learning coach, and account settings for appearance and learning preferences. Clerk sign-in is required for learning routes. Each account receives its own progress, competency, roadmap, activity, and learning-preference records; course descriptions remain a shared catalog. New accounts default to the learner role.
 
-The API enforces authentication, scopes learner data by verified Clerk user ID, and restricts learner progress updates and coach requests to the learner role. Administrators can assign roles with `LEARNING_ROLE_ASSIGNMENTS`; the app does not yet include role-management screens or trainer, department-head, or admin workspaces. File analysis, assessments, certificates, and reporting/export workflows are also not implemented.
+The API enforces authentication, scopes learner data by verified Clerk user ID, and restricts learner progress updates, learning settings, and coach requests to the learner role. Administrators can assign roles with `LEARNING_ROLE_ASSIGNMENTS`; the app does not yet include role-management screens or trainer, department-head, or admin workspaces. File analysis, assessments, certificates, and reporting/export workflows are also not implemented.
 
 ## Source of truth
 
