@@ -394,37 +394,69 @@ function RoadmapPage() {
 }
 
 type ChatMessage = { role: 'assistant' | 'user'; text: string };
+function getCoachErrorMessage(error: unknown) {
+  const status =
+    error && typeof error === 'object' && 'status' in error
+      ? Number((error as { status?: unknown }).status)
+      : 0;
+
+  if (status === 401) return 'Your sign-in expired. Sign in again, then retry your question.';
+  if (status === 403) return 'Your account cannot access the learning coach.';
+  if (status === 400) return 'That question could not be sent. Try shortening it and send again.';
+  if (status === 429) return 'The coach is receiving too many requests. Wait a minute, then retry.';
+  if (status === 502 || status === 503) {
+    return 'The AI service is temporarily unavailable. Your question is still here; you can retry it.';
+  }
+  return 'The request did not reach the coach. Check your connection and retry.';
+}
+
 function CoachPage() {
   const ask = useAskLearningCoach();
   const dashboard = useGetLearningDashboard({ query: { queryKey: getGetLearningDashboardQueryKey() } });
   const [question, setQuestion] = useState('');
   const [messages, setMessages] = useState<ChatMessage[]>([{ role: 'assistant', text: 'Hi — I’m here to help make your next learning step feel clear and doable. Ask me about a skill, your roadmap, or how to fit learning into a busy week.' }]);
+  const lastQuestion = useRef('');
   const suggestions = ['Which skill should I focus on first?', 'Help me make a realistic weekly plan', 'How can I use what I’m learning at work?'];
-  const submit = (event: FormEvent) => {
-    event.preventDefault();
-    const trimmed = question.trim();
+  const sendQuestion = (rawQuestion: string, addToChat = true) => {
+    const trimmed = rawQuestion.trim();
     if (trimmed.length < 2 || ask.isPending) return;
-    setMessages((current) => [...current, { role: 'user', text: trimmed }]);
-    setQuestion('');
+    lastQuestion.current = trimmed;
+    if (addToChat) {
+      setMessages((current) => [...current, { role: 'user', text: trimmed }]);
+      setQuestion('');
+    }
     const learnerContext = dashboard.data ? JSON.stringify({
-      learner: dashboard.data.learner,
+      learner: {
+        role: dashboard.data.learner.role,
+        department: dashboard.data.learner.department,
+      },
       stats: dashboard.data.stats,
-      competencies: dashboard.data.competencies,
+      competencies: dashboard.data.competencies.slice(0, 5).map(({ name, category, currentLevel, targetLevel, impact }) => ({
+        name,
+        category,
+        currentLevel,
+        targetLevel,
+        impact,
+      })),
       recommendedCourses: dashboard.data.recommendedCourses?.map((c) => ({ title: c.title, category: c.category, progress: c.userProgress })),
       weeklyHours: dashboard.data.weeklyHours,
     }) : undefined;
     ask.mutate({ data: { question: trimmed, context: learnerContext } }, {
       onSuccess: (reply) => setMessages((current) => [...current, { role: 'assistant', text: reply.answer }]),
-      onError: () => setMessages((current) => [...current, { role: 'assistant', text: 'I couldn’t reach your coach just now. Please try again in a moment.' }]),
     });
+  };
+  const submit = (event: FormEvent) => {
+    event.preventDefault();
+    sendQuestion(question);
   };
   return <div className="mx-auto max-w-[1000px] space-y-7">
     <section><p className="font-data text-[10px] uppercase tracking-[.2em] text-primary">A thoughtful sounding board</p><h1 className="mt-2 font-display text-3xl font-extrabold tracking-[-.05em] sm:text-4xl">Bring a question. Leave with a plan.</h1><p className="mt-2 max-w-2xl text-sm leading-relaxed text-muted-foreground">Your coach uses your learning progress and skill profile to give advice that’s grounded in where you are.</p></section>
     <div className="grid gap-5 lg:grid-cols-[1fr_270px]">
       <section className="flex min-h-[520px] flex-col overflow-hidden rounded-2xl border border-card-border bg-card">
-        <div className="flex items-center gap-3 border-b border-border px-5 py-4"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#dcece5] text-primary dark:bg-[#24483c]"><BrainCircuit size={20} /></span><div><p className="text-sm font-bold">Your learning coach</p><p className="text-[11px] text-muted-foreground">Here to help you find your next step</p></div><span className="ml-auto flex items-center gap-1.5 text-[10px] font-semibold text-primary"><span className="h-1.5 w-1.5 rounded-full bg-primary" /> Ready</span></div>
+        <div className="flex items-center gap-3 border-b border-border px-5 py-4"><span className="grid h-10 w-10 place-items-center rounded-xl bg-[#dcece5] text-primary dark:bg-[#24483c]"><BrainCircuit size={20} /></span><div><p className="text-sm font-bold">Your learning coach</p><p className="text-[11px] text-muted-foreground">Here to help you find your next step</p></div><span className={`ml-auto flex items-center gap-1.5 text-[10px] font-semibold ${ask.isError ? 'text-destructive' : 'text-primary'}`}><span className={`h-1.5 w-1.5 rounded-full ${ask.isError ? 'bg-destructive' : 'bg-primary'}`} />{ask.isPending ? 'Thinking' : ask.isError ? 'Try again' : 'Ready'}</span></div>
         <div className="flex-1 space-y-4 overflow-y-auto p-4 sm:p-6" aria-live="polite">{messages.map((message, i) => <div key={i} data-testid={`coach-message-${i}`} className={`flex ${message.role === 'user' ? 'justify-end' : 'justify-start'}`}><div className={`max-w-[88%] rounded-2xl px-4 py-3 text-sm leading-relaxed ${message.role === 'user' ? 'rounded-br-md bg-primary text-primary-foreground' : 'rounded-bl-md bg-muted text-foreground'}`}>{message.text}</div></div>)}
           {ask.isPending && <div className="flex justify-start"><div className="flex items-center gap-2 rounded-2xl rounded-bl-md bg-muted px-4 py-3 text-xs text-muted-foreground"><span className="flex gap-1"><i className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary" /><i className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary [animation-delay:120ms]" /><i className="h-1.5 w-1.5 animate-pulse rounded-full bg-primary [animation-delay:240ms]" /></span> Thinking through your learning data…</div></div>}
+          {ask.isError && <div role="alert" data-testid="coach-error" className="flex justify-start"><div className="max-w-[88%] rounded-2xl rounded-bl-md border border-destructive/25 bg-destructive/5 px-4 py-3 text-sm text-foreground"><p>{getCoachErrorMessage(ask.error)}</p><button type="button" onClick={() => sendQuestion(lastQuestion.current, false)} disabled={ask.isPending} data-testid="button-retry-coach" className="mt-2 font-bold text-primary underline-offset-4 hover:underline disabled:opacity-50">Retry question</button></div></div>}
         </div>
         <form onSubmit={submit} className="border-t border-border p-3 sm:p-4"><div className="flex items-end gap-2 rounded-xl border border-input bg-background p-2">
           <textarea value={question} onChange={(e) => setQuestion(e.target.value)} onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); e.currentTarget.form?.requestSubmit(); } }} data-testid="input-coach-question" placeholder="Ask about your learning…" rows={1} maxLength={2000} className="max-h-28 min-h-10 flex-1 resize-y bg-transparent px-2 py-2 text-sm outline-none placeholder:text-muted-foreground" />

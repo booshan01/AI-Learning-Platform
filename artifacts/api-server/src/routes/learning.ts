@@ -637,8 +637,14 @@ router.post(
     return;
   }
 
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) {
+    res.status(503).json({ error: "The AI learning coach is not configured." });
+    return;
+  }
+
   const now = Date.now();
-  const clientId = req.ip ?? req.socket.remoteAddress ?? "unknown";
+  const clientId = getLearnerId(req);
   const window = coachRequestWindows.get(clientId);
   if (!window || now - window.startedAt >= coachWindowMs) {
     coachRequestWindows.set(clientId, { startedAt: now, count: 1 });
@@ -655,14 +661,8 @@ router.post(
     }
   }
 
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    res.status(502).json({ error: "The AI learning coach is not configured." });
-    return;
-  }
-
-  const preferences = await getOrCreateLearningPreferences(getLearnerId(req));
   try {
+    const preferences = await getOrCreateLearningPreferences(getLearnerId(req));
     const client = new GoogleGenAI({ apiKey });
     const prompt = [
       "You are a practical workplace learning coach.",
@@ -682,7 +682,26 @@ router.post(
     if (!answer) throw new Error("Gemini returned an empty response");
     res.json(AskLearningCoachResponse.parse({ answer }));
   } catch (error) {
-    req.log.error({ err: error }, "AI learning coach request failed");
+    const details =
+      error && typeof error === "object"
+        ? (error as { status?: unknown; statusCode?: unknown; name?: unknown })
+        : {};
+    const upstreamStatus =
+      typeof details.status === "number"
+        ? details.status
+        : typeof details.statusCode === "number"
+          ? details.statusCode
+          : undefined;
+    const errorName =
+      typeof details.name === "string" ? details.name : "UnknownError";
+    req.log.error(
+      { errorName, upstreamStatus },
+      "AI learning coach request failed",
+    );
+    if (upstreamStatus === 429) {
+      res.status(503).json({ error: "The AI learning coach is busy. Please retry shortly." });
+      return;
+    }
     res.status(502).json({ error: "The AI learning coach is temporarily unavailable." });
   }
   },
