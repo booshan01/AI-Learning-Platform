@@ -108,6 +108,179 @@ export interface LearningSettingsUpdate {
   coachStyle: LearningSettingsUpdateCoachStyle;
 }
 
+/**
+ * @nullable
+ */
+export type LearningPersonalProfileMaritalStatus = typeof LearningPersonalProfileMaritalStatus[keyof typeof LearningPersonalProfileMaritalStatus] | null;
+
+
+export const LearningPersonalProfileMaritalStatus = {
+  single: 'single',
+  married: 'married',
+  separated: 'separated',
+  divorced: 'divorced',
+  widowed: 'widowed',
+  other: 'other',
+  prefer_not_to_say: 'prefer_not_to_say',
+} as const;
+
+export type ProofOfAddressDocumentContentType = typeof ProofOfAddressDocumentContentType[keyof typeof ProofOfAddressDocumentContentType];
+
+
+export const ProofOfAddressDocumentContentType = {
+  'application/pdf': 'application/pdf',
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+} as const;
+
+export interface ProofOfAddressDocument {
+  /** @maxLength 160 */
+  fileName: string;
+  contentType: ProofOfAddressDocumentContentType;
+  /**
+     * @minimum 1
+     * @maximum 10485760
+     */
+  sizeBytes: number;
+}
+
+export interface LearningPersonalProfile {
+  /**
+     * @maxLength 150
+     * @nullable
+     */
+  fullLegalName: string | null;
+  /** @nullable */
+  dateOfBirth: string | null;
+  /**
+     * @maxLength 150
+     * @nullable
+     */
+  placeOfBirth: string | null;
+  /**
+     * @maxLength 80
+     * @nullable
+     */
+  genderSex: string | null;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  nationalityCitizenship: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  permanentAddress: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  currentResidentialAddress: string | null;
+  /** @nullable */
+  maritalStatus: LearningPersonalProfileMaritalStatus;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  educationalQualifications: string | null;
+  proofOfAddressDocument: ProofOfAddressDocument | null;
+}
+
+/**
+ * @nullable
+ */
+export type LearningPersonalProfileUpdateMaritalStatus = typeof LearningPersonalProfileUpdateMaritalStatus[keyof typeof LearningPersonalProfileUpdateMaritalStatus] | null;
+
+
+export const LearningPersonalProfileUpdateMaritalStatus = {
+  single: 'single',
+  married: 'married',
+  separated: 'separated',
+  divorced: 'divorced',
+  widowed: 'widowed',
+  other: 'other',
+  prefer_not_to_say: 'prefer_not_to_say',
+} as const;
+
+export interface LearningPersonalProfileUpdate {
+  /**
+     * @maxLength 150
+     * @nullable
+     */
+  fullLegalName: string | null;
+  /** @nullable */
+  dateOfBirth: string | null;
+  /**
+     * @maxLength 150
+     * @nullable
+     */
+  placeOfBirth: string | null;
+  /**
+     * @maxLength 80
+     * @nullable
+     */
+  genderSex: string | null;
+  /**
+     * @maxLength 120
+     * @nullable
+     */
+  nationalityCitizenship: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  permanentAddress: string | null;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  currentResidentialAddress: string | null;
+  /** @nullable */
+  maritalStatus: LearningPersonalProfileUpdateMaritalStatus;
+  /**
+     * @maxLength 2000
+     * @nullable
+     */
+  educationalQualifications: string | null;
+  /**
+     * @maxLength 500
+     * @nullable
+     */
+  addressProofObjectPath?: string | null;
+  /** @maxLength 160 */
+  addressProofFileName?: string;
+}
+
+export type AddressProofUploadInputContentType = typeof AddressProofUploadInputContentType[keyof typeof AddressProofUploadInputContentType];
+
+
+export const AddressProofUploadInputContentType = {
+  'application/pdf': 'application/pdf',
+  'image/jpeg': 'image/jpeg',
+  'image/png': 'image/png',
+} as const;
+
+export interface AddressProofUploadInput {
+  /**
+     * @minLength 1
+     * @maxLength 160
+     */
+  name: string;
+  /**
+     * @minimum 1
+     * @maximum 10485760
+     */
+  sizeBytes: number;
+  contentType: AddressProofUploadInputContentType;
+}
+
+export interface AddressProofUpload {
+  uploadUrl: string;
+  /** @maxLength 500 */
+  objectPath: string;
+}
+
 export interface ProgressUpdate {
   /**
      * @minimum 0

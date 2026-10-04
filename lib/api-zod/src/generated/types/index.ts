@@ -6,6 +6,9 @@
  * OpenAPI spec version: 0.1.0
  */
 
+export * from './addressProofUpload';
+export * from './addressProofUploadInput';
+export * from './addressProofUploadInputContentType';
 export * from './competency';
 export * from './courseProgress';
 export * from './healthStatus';
@@ -15,10 +18,16 @@ export * from './learningCoachInput';
 export * from './learningCoachReply';
 export * from './learningCourse';
 export * from './learningDashboard';
+export * from './learningPersonalProfile';
+export * from './learningPersonalProfileMaritalStatus';
+export * from './learningPersonalProfileUpdate';
+export * from './learningPersonalProfileUpdateMaritalStatus';
 export * from './learningSettings';
 export * from './learningSettingsCoachStyle';
 export * from './learningSettingsUpdate';
 export * from './learningSettingsUpdateCoachStyle';
 export * from './learningStats';
 export * from './progressUpdate';
+export * from './proofOfAddressDocument';
+export * from './proofOfAddressDocumentContentType';
 export * from './roadmapStep';

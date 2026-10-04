@@ -127,6 +127,83 @@ paths:
                 $ref: "#/components/schemas/LearningSettings"
         "400":
           description: Invalid learning preferences
+  /learning/personal-profile:
+    get:
+      operationId: getLearningPersonalProfile
+      tags: [learning]
+      summary: Get the signed-in learner's encrypted personal profile
+      responses:
+        "200":
+          description: Personal profile fields and proof-document metadata
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningPersonalProfile"
+    patch:
+      operationId: updateLearningPersonalProfile
+      tags: [learning]
+      summary: Save the signed-in learner's encrypted personal profile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LearningPersonalProfileUpdate"
+      responses:
+        "200":
+          description: Saved personal profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/LearningPersonalProfile"
+        "400":
+          description: Invalid personal profile data
+        "503":
+          description: Personal-data encryption is unavailable
+    delete:
+      operationId: deleteLearningPersonalProfile
+      tags: [learning]
+      summary: Delete the signed-in learner's personal profile and proof document
+      responses:
+        "204":
+          description: Personal profile deleted
+  /learning/personal-profile/address-proof/upload-url:
+    post:
+      operationId: requestAddressProofUpload
+      tags: [learning]
+      summary: Create a short-lived upload URL for a private proof-of-address file
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AddressProofUploadInput"
+      responses:
+        "200":
+          description: Short-lived upload URL and private object path
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AddressProofUpload"
+        "400":
+          description: Invalid file metadata
+        "503":
+          description: Private file storage is unavailable
+  /learning/personal-profile/address-proof:
+    get:
+      operationId: downloadAddressProof
+      tags: [learning]
+      summary: Download the signed-in learner's private proof-of-address file
+      responses:
+        "200":
+          description: Private proof-of-address file
+          content:
+            application/octet-stream:
+              schema:
+                type: string
+                format: binary
+        "404":
+          description: No proof-of-address file is saved
   /learning/courses/{courseId}/progress:
     patch:
       operationId: updateCourseProgress
@@ -282,6 +359,66 @@ components:
         coachStyle:
           type: string
           enum: [supportive, concise, challenging]
+    LearningPersonalProfile:
+      type: object
+      required: [fullLegalName, dateOfBirth, placeOfBirth, genderSex, nationalityCitizenship, permanentAddress, currentResidentialAddress, maritalStatus, educationalQualifications, proofOfAddressDocument]
+      properties:
+        fullLegalName: { type: ["string", "null"], maxLength: 150 }
+        dateOfBirth: { type: ["string", "null"], format: date }
+        placeOfBirth: { type: ["string", "null"], maxLength: 150 }
+        genderSex: { type: ["string", "null"], maxLength: 80 }
+        nationalityCitizenship: { type: ["string", "null"], maxLength: 120 }
+        permanentAddress: { type: ["string", "null"], maxLength: 2000 }
+        currentResidentialAddress: { type: ["string", "null"], maxLength: 2000 }
+        maritalStatus:
+          type: ["string", "null"]
+          enum: [single, married, separated, divorced, widowed, other, prefer_not_to_say, null]
+        educationalQualifications: { type: ["string", "null"], maxLength: 2000 }
+        proofOfAddressDocument:
+          oneOf:
+            - { $ref: "#/components/schemas/ProofOfAddressDocument" }
+            - { type: "null" }
+    LearningPersonalProfileUpdate:
+      type: object
+      required: [fullLegalName, dateOfBirth, placeOfBirth, genderSex, nationalityCitizenship, permanentAddress, currentResidentialAddress, maritalStatus, educationalQualifications]
+      properties:
+        fullLegalName: { type: ["string", "null"], maxLength: 150 }
+        dateOfBirth: { type: ["string", "null"], format: date }
+        placeOfBirth: { type: ["string", "null"], maxLength: 150 }
+        genderSex: { type: ["string", "null"], maxLength: 80 }
+        nationalityCitizenship: { type: ["string", "null"], maxLength: 120 }
+        permanentAddress: { type: ["string", "null"], maxLength: 2000 }
+        currentResidentialAddress: { type: ["string", "null"], maxLength: 2000 }
+        maritalStatus:
+          type: ["string", "null"]
+          enum: [single, married, separated, divorced, widowed, other, prefer_not_to_say, null]
+        educationalQualifications: { type: ["string", "null"], maxLength: 2000 }
+        addressProofObjectPath: { type: ["string", "null"], maxLength: 500 }
+        addressProofFileName: { type: string, maxLength: 160 }
+    ProofOfAddressDocument:
+      type: object
+      required: [fileName, contentType, sizeBytes]
+      properties:
+        fileName: { type: string, maxLength: 160 }
+        contentType:
+          type: string
+          enum: [application/pdf, image/jpeg, image/png]
+        sizeBytes: { type: integer, minimum: 1, maximum: 10485760 }
+    AddressProofUploadInput:
+      type: object
+      required: [name, sizeBytes, contentType]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 160 }
+        sizeBytes: { type: integer, minimum: 1, maximum: 10485760 }
+        contentType:
+          type: string
+          enum: [application/pdf, image/jpeg, image/png]
+    AddressProofUpload:
+      type: object
+      required: [uploadUrl, objectPath]
+      properties:
+        uploadUrl: { type: string, format: uri }
+        objectPath: { type: string, maxLength: 500 }
     ProgressUpdate:
       type: object
       required: [percentComplete]

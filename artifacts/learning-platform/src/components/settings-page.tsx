@@ -3,6 +3,7 @@ import { useUser, useClerk } from "@clerk/react";
 import { Link } from "wouter";
 import { useQueryClient } from "@tanstack/react-query";
 import { useTheme } from "@/lib/theme-context";
+import PersonalDetailsForm from "@/components/personal-details-form";
 import {
   ArrowRight,
   Check,
@@ -481,6 +482,8 @@ export default function SettingsPage() {
               </div>
             </div>
           </section>
+
+          <PersonalDetailsForm />
 
           <section
             aria-labelledby="privacy-heading"

@@ -20,6 +20,8 @@ import type {
 } from '@tanstack/react-query';
 
 import type {
+  AddressProofUpload,
+  AddressProofUploadInput,
   Competency,
   CourseProgress,
   HealthStatus,
@@ -28,6 +30,8 @@ import type {
   LearningCoachReply,
   LearningCourse,
   LearningDashboard,
+  LearningPersonalProfile,
+  LearningPersonalProfileUpdate,
   LearningSettings,
   LearningSettingsUpdate,
   ProgressUpdate,
@@ -688,6 +692,410 @@ export const useUpdateLearningSettings = <TError = ErrorType<void>,
       > => {
       return useMutation(getUpdateLearningSettingsMutationOptions(options));
     }
+
+export const getGetLearningPersonalProfileUrl = () => {
+
+
+
+
+  return `/api/learning/personal-profile`
+}
+
+/**
+ * @summary Get the signed-in learner's encrypted personal profile
+ */
+export const getLearningPersonalProfile = async ( options?: Parameters<typeof customFetch>[1]): Promise<LearningPersonalProfile> => {
+
+  return customFetch<LearningPersonalProfile>(getGetLearningPersonalProfileUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetLearningPersonalProfileQueryKey = () => {
+    return [
+    `/api/learning/personal-profile`
+    ] as const;
+    }
+
+
+export const getGetLearningPersonalProfileQueryOptions = <TData = Awaited<ReturnType<typeof getLearningPersonalProfile>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearningPersonalProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetLearningPersonalProfileQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getLearningPersonalProfile>>> = ({ signal }) => getLearningPersonalProfile({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getLearningPersonalProfile>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetLearningPersonalProfileQueryResult = NonNullable<Awaited<ReturnType<typeof getLearningPersonalProfile>>>
+export type GetLearningPersonalProfileQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary Get the signed-in learner's encrypted personal profile
+ */
+
+export function useGetLearningPersonalProfile<TData = Awaited<ReturnType<typeof getLearningPersonalProfile>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getLearningPersonalProfile>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetLearningPersonalProfileQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
+
+export const getUpdateLearningPersonalProfileUrl = () => {
+
+
+
+
+  return `/api/learning/personal-profile`
+}
+
+/**
+ * @summary Save the signed-in learner's encrypted personal profile
+ */
+export const updateLearningPersonalProfile = async (learningPersonalProfileUpdate: LearningPersonalProfileUpdate, options?: Parameters<typeof customFetch>[1]): Promise<LearningPersonalProfile> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<LearningPersonalProfile>(getUpdateLearningPersonalProfileUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(learningPersonalProfileUpdate)
+  }
+);}
+
+
+
+
+
+export const getUpdateLearningPersonalProfileMutationKey = () => ['updateLearningPersonalProfile'] as const;
+
+export const getUpdateLearningPersonalProfileMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearningPersonalProfile>>, TError,UpdateLearningPersonalProfileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof updateLearningPersonalProfile>>, TError,UpdateLearningPersonalProfileMutationVariables, TContext> => {
+
+const mutationKey = getUpdateLearningPersonalProfileMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof updateLearningPersonalProfile>>, UpdateLearningPersonalProfileMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  updateLearningPersonalProfile(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type UpdateLearningPersonalProfileMutationResult = NonNullable<Awaited<ReturnType<typeof updateLearningPersonalProfile>>>
+    export type UpdateLearningPersonalProfileMutationBody = BodyType<LearningPersonalProfileUpdate>
+    export type UpdateLearningPersonalProfileMutationError = ErrorType<void>
+    export type UpdateLearningPersonalProfileMutationVariables = {data: BodyType<LearningPersonalProfileUpdate>}
+
+    /**
+ * @summary Save the signed-in learner's encrypted personal profile
+ */
+export const useUpdateLearningPersonalProfile = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof updateLearningPersonalProfile>>, TError,UpdateLearningPersonalProfileMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof updateLearningPersonalProfile>>,
+        TError,
+        UpdateLearningPersonalProfileMutationVariables,
+        TContext
+      > => {
+      return useMutation(getUpdateLearningPersonalProfileMutationOptions(options));
+    }
+
+export const getDeleteLearningPersonalProfileUrl = () => {
+
+
+
+
+  return `/api/learning/personal-profile`
+}
+
+/**
+ * @summary Delete the signed-in learner's personal profile and proof document
+ */
+export const deleteLearningPersonalProfile = async ( options?: Parameters<typeof customFetch>[1]): Promise<void> => {
+
+  return customFetch<void>(getDeleteLearningPersonalProfileUrl(),
+  {
+    ...options,
+    method: 'DELETE'
+
+
+  }
+);}
+
+
+
+
+
+export const getDeleteLearningPersonalProfileMutationKey = () => ['deleteLearningPersonalProfile'] as const;
+
+export const getDeleteLearningPersonalProfileMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLearningPersonalProfile>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof deleteLearningPersonalProfile>>, TError,void, TContext> => {
+
+const mutationKey = getDeleteLearningPersonalProfileMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof deleteLearningPersonalProfile>>, void> = () => {
+
+
+          return  deleteLearningPersonalProfile(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type DeleteLearningPersonalProfileMutationResult = NonNullable<Awaited<ReturnType<typeof deleteLearningPersonalProfile>>>
+
+    export type DeleteLearningPersonalProfileMutationError = ErrorType<unknown>
+
+
+    /**
+ * @summary Delete the signed-in learner's personal profile and proof document
+ */
+export const useDeleteLearningPersonalProfile = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof deleteLearningPersonalProfile>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof deleteLearningPersonalProfile>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getDeleteLearningPersonalProfileMutationOptions(options));
+    }
+
+export const getRequestAddressProofUploadUrl = () => {
+
+
+
+
+  return `/api/learning/personal-profile/address-proof/upload-url`
+}
+
+/**
+ * @summary Create a short-lived upload URL for a private proof-of-address file
+ */
+export const requestAddressProofUpload = async (addressProofUploadInput: AddressProofUploadInput, options?: Parameters<typeof customFetch>[1]): Promise<AddressProofUpload> => {
+
+    const getHeaders = (h?: NonNullable<RequestInit['headers']>): Record<string, string | readonly string[]> => {
+    if (!h) return {};
+    if (h instanceof Headers) return Object.fromEntries(h.entries());
+    if (Symbol.iterator in h) {
+      return Object.fromEntries(
+        Array.from(h as Iterable<Iterable<string>>, (entry) => Array.from(entry) as [string, string]),
+      );
+    }
+    const headers: Record<string, string | readonly string[]> = {};
+    for (const [name, value] of Object.entries<string | readonly string[] | undefined>(h)) {
+      if (value !== undefined) headers[name] = value;
+    }
+    return headers;
+  };
+return customFetch<AddressProofUpload>(getRequestAddressProofUploadUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...getHeaders(options?.headers) },
+    body: JSON.stringify(addressProofUploadInput)
+  }
+);}
+
+
+
+
+
+export const getRequestAddressProofUploadMutationKey = () => ['requestAddressProofUpload'] as const;
+
+export const getRequestAddressProofUploadMutationOptions = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestAddressProofUpload>>, TError,RequestAddressProofUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof requestAddressProofUpload>>, TError,RequestAddressProofUploadMutationVariables, TContext> => {
+
+const mutationKey = getRequestAddressProofUploadMutationKey();
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof requestAddressProofUpload>>, RequestAddressProofUploadMutationVariables> = (props) => {
+          const {data} = props ?? {};
+
+          return  requestAddressProofUpload(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type RequestAddressProofUploadMutationResult = NonNullable<Awaited<ReturnType<typeof requestAddressProofUpload>>>
+    export type RequestAddressProofUploadMutationBody = BodyType<AddressProofUploadInput>
+    export type RequestAddressProofUploadMutationError = ErrorType<void>
+    export type RequestAddressProofUploadMutationVariables = {data: BodyType<AddressProofUploadInput>}
+
+    /**
+ * @summary Create a short-lived upload URL for a private proof-of-address file
+ */
+export const useRequestAddressProofUpload = <TError = ErrorType<void>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof requestAddressProofUpload>>, TError,RequestAddressProofUploadMutationVariables, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof requestAddressProofUpload>>,
+        TError,
+        RequestAddressProofUploadMutationVariables,
+        TContext
+      > => {
+      return useMutation(getRequestAddressProofUploadMutationOptions(options));
+    }
+
+export const getDownloadAddressProofUrl = () => {
+
+
+
+
+  return `/api/learning/personal-profile/address-proof`
+}
+
+/**
+ * @summary Download the signed-in learner's private proof-of-address file
+ */
+export const downloadAddressProof = async ( options?: Parameters<typeof customFetch>[1]): Promise<Blob> => {
+
+  return customFetch<Blob>(getDownloadAddressProofUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getDownloadAddressProofQueryKey = () => {
+    return [
+    `/api/learning/personal-profile/address-proof`
+    ] as const;
+    }
+
+
+export const getDownloadAddressProofQueryOptions = <TData = Awaited<ReturnType<typeof downloadAddressProof>>, TError = ErrorType<void>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadAddressProof>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getDownloadAddressProofQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof downloadAddressProof>>> = ({ signal }) => downloadAddressProof({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof downloadAddressProof>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type DownloadAddressProofQueryResult = NonNullable<Awaited<ReturnType<typeof downloadAddressProof>>>
+export type DownloadAddressProofQueryError = ErrorType<void>
+
+
+/**
+ * @summary Download the signed-in learner's private proof-of-address file
+ */
+
+export function useDownloadAddressProof<TData = Awaited<ReturnType<typeof downloadAddressProof>>, TError = ErrorType<void>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof downloadAddressProof>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getDownloadAddressProofQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return withQueryKey(query, queryOptions.queryKey);
+}
+
+
+
+
+
+
 
 export const getUpdateCourseProgressUrl = (courseId: number,) => {
 

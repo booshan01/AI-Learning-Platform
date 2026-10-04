@@ -160,6 +160,159 @@ export const UpdateLearningSettingsResponse = zod.object({
 
 
 /**
+ * @summary Get the signed-in learner's encrypted personal profile
+ */
+export const getLearningPersonalProfileResponseFullLegalNameMax = 150;
+
+export const getLearningPersonalProfileResponsePlaceOfBirthMax = 150;
+
+export const getLearningPersonalProfileResponseGenderSexMax = 80;
+
+export const getLearningPersonalProfileResponseNationalityCitizenshipMax = 120;
+
+export const getLearningPersonalProfileResponsePermanentAddressMax = 2000;
+
+export const getLearningPersonalProfileResponseCurrentResidentialAddressMax = 2000;
+
+export const getLearningPersonalProfileResponseEducationalQualificationsMax = 2000;
+
+export const getLearningPersonalProfileResponseProofOfAddressDocumentOneFileNameMax = 160;
+
+export const getLearningPersonalProfileResponseProofOfAddressDocumentOneSizeBytesMax = 10485760;
+
+
+
+export const GetLearningPersonalProfileResponse = zod.object({
+  "fullLegalName": zod.string().max(getLearningPersonalProfileResponseFullLegalNameMax).nullable(),
+  "dateOfBirth": zod.coerce.date().nullable(),
+  "placeOfBirth": zod.string().max(getLearningPersonalProfileResponsePlaceOfBirthMax).nullable(),
+  "genderSex": zod.string().max(getLearningPersonalProfileResponseGenderSexMax).nullable(),
+  "nationalityCitizenship": zod.string().max(getLearningPersonalProfileResponseNationalityCitizenshipMax).nullable(),
+  "permanentAddress": zod.string().max(getLearningPersonalProfileResponsePermanentAddressMax).nullable(),
+  "currentResidentialAddress": zod.string().max(getLearningPersonalProfileResponseCurrentResidentialAddressMax).nullable(),
+  "maritalStatus": zod.union([zod.literal('single'),zod.literal('married'),zod.literal('separated'),zod.literal('divorced'),zod.literal('widowed'),zod.literal('other'),zod.literal('prefer_not_to_say'),zod.literal(null)]).nullable(),
+  "educationalQualifications": zod.string().max(getLearningPersonalProfileResponseEducationalQualificationsMax).nullable(),
+  "proofOfAddressDocument": zod.union([zod.object({
+  "fileName": zod.string().max(getLearningPersonalProfileResponseProofOfAddressDocumentOneFileNameMax),
+  "contentType": zod.enum(['application/pdf', 'image/jpeg', 'image/png']),
+  "sizeBytes": zod.number().int().min(1).max(getLearningPersonalProfileResponseProofOfAddressDocumentOneSizeBytesMax)
+}),zod.null()])
+})
+
+
+/**
+ * @summary Save the signed-in learner's encrypted personal profile
+ */
+export const updateLearningPersonalProfileBodyFullLegalNameMax = 150;
+
+export const updateLearningPersonalProfileBodyPlaceOfBirthMax = 150;
+
+export const updateLearningPersonalProfileBodyGenderSexMax = 80;
+
+export const updateLearningPersonalProfileBodyNationalityCitizenshipMax = 120;
+
+export const updateLearningPersonalProfileBodyPermanentAddressMax = 2000;
+
+export const updateLearningPersonalProfileBodyCurrentResidentialAddressMax = 2000;
+
+export const updateLearningPersonalProfileBodyEducationalQualificationsMax = 2000;
+
+export const updateLearningPersonalProfileBodyAddressProofObjectPathMax = 500;
+
+export const updateLearningPersonalProfileBodyAddressProofFileNameMax = 160;
+
+
+
+export const UpdateLearningPersonalProfileBody = zod.object({
+  "fullLegalName": zod.string().max(updateLearningPersonalProfileBodyFullLegalNameMax).nullable(),
+  "dateOfBirth": zod.coerce.date().nullable(),
+  "placeOfBirth": zod.string().max(updateLearningPersonalProfileBodyPlaceOfBirthMax).nullable(),
+  "genderSex": zod.string().max(updateLearningPersonalProfileBodyGenderSexMax).nullable(),
+  "nationalityCitizenship": zod.string().max(updateLearningPersonalProfileBodyNationalityCitizenshipMax).nullable(),
+  "permanentAddress": zod.string().max(updateLearningPersonalProfileBodyPermanentAddressMax).nullable(),
+  "currentResidentialAddress": zod.string().max(updateLearningPersonalProfileBodyCurrentResidentialAddressMax).nullable(),
+  "maritalStatus": zod.union([zod.literal('single'),zod.literal('married'),zod.literal('separated'),zod.literal('divorced'),zod.literal('widowed'),zod.literal('other'),zod.literal('prefer_not_to_say'),zod.literal(null)]).nullable(),
+  "educationalQualifications": zod.string().max(updateLearningPersonalProfileBodyEducationalQualificationsMax).nullable(),
+  "addressProofObjectPath": zod.string().max(updateLearningPersonalProfileBodyAddressProofObjectPathMax).nullish(),
+  "addressProofFileName": zod.string().max(updateLearningPersonalProfileBodyAddressProofFileNameMax).optional()
+})
+
+export const updateLearningPersonalProfileResponseFullLegalNameMax = 150;
+
+export const updateLearningPersonalProfileResponsePlaceOfBirthMax = 150;
+
+export const updateLearningPersonalProfileResponseGenderSexMax = 80;
+
+export const updateLearningPersonalProfileResponseNationalityCitizenshipMax = 120;
+
+export const updateLearningPersonalProfileResponsePermanentAddressMax = 2000;
+
+export const updateLearningPersonalProfileResponseCurrentResidentialAddressMax = 2000;
+
+export const updateLearningPersonalProfileResponseEducationalQualificationsMax = 2000;
+
+export const updateLearningPersonalProfileResponseProofOfAddressDocumentOneFileNameMax = 160;
+
+export const updateLearningPersonalProfileResponseProofOfAddressDocumentOneSizeBytesMax = 10485760;
+
+
+
+export const UpdateLearningPersonalProfileResponse = zod.object({
+  "fullLegalName": zod.string().max(updateLearningPersonalProfileResponseFullLegalNameMax).nullable(),
+  "dateOfBirth": zod.coerce.date().nullable(),
+  "placeOfBirth": zod.string().max(updateLearningPersonalProfileResponsePlaceOfBirthMax).nullable(),
+  "genderSex": zod.string().max(updateLearningPersonalProfileResponseGenderSexMax).nullable(),
+  "nationalityCitizenship": zod.string().max(updateLearningPersonalProfileResponseNationalityCitizenshipMax).nullable(),
+  "permanentAddress": zod.string().max(updateLearningPersonalProfileResponsePermanentAddressMax).nullable(),
+  "currentResidentialAddress": zod.string().max(updateLearningPersonalProfileResponseCurrentResidentialAddressMax).nullable(),
+  "maritalStatus": zod.union([zod.literal('single'),zod.literal('married'),zod.literal('separated'),zod.literal('divorced'),zod.literal('widowed'),zod.literal('other'),zod.literal('prefer_not_to_say'),zod.literal(null)]).nullable(),
+  "educationalQualifications": zod.string().max(updateLearningPersonalProfileResponseEducationalQualificationsMax).nullable(),
+  "proofOfAddressDocument": zod.union([zod.object({
+  "fileName": zod.string().max(updateLearningPersonalProfileResponseProofOfAddressDocumentOneFileNameMax),
+  "contentType": zod.enum(['application/pdf', 'image/jpeg', 'image/png']),
+  "sizeBytes": zod.number().int().min(1).max(updateLearningPersonalProfileResponseProofOfAddressDocumentOneSizeBytesMax)
+}),zod.null()])
+})
+
+
+/**
+ * @summary Delete the signed-in learner's personal profile and proof document
+ */
+export const DeleteLearningPersonalProfileResponse = zod.void()
+
+
+/**
+ * @summary Create a short-lived upload URL for a private proof-of-address file
+ */
+export const requestAddressProofUploadBodyNameMax = 160;
+
+export const requestAddressProofUploadBodySizeBytesMax = 10485760;
+
+
+
+export const RequestAddressProofUploadBody = zod.object({
+  "name": zod.string().min(1).max(requestAddressProofUploadBodyNameMax),
+  "sizeBytes": zod.number().int().min(1).max(requestAddressProofUploadBodySizeBytesMax),
+  "contentType": zod.enum(['application/pdf', 'image/jpeg', 'image/png'])
+})
+
+export const requestAddressProofUploadResponseObjectPathMax = 500;
+
+
+
+export const RequestAddressProofUploadResponse = zod.object({
+  "uploadUrl": zod.string().url(),
+  "objectPath": zod.string().max(requestAddressProofUploadResponseObjectPathMax)
+})
+
+
+/**
+ * @summary Download the signed-in learner's private proof-of-address file
+ */
+export const DownloadAddressProofResponse = zod.unknown()
+
+
+/**
  * @summary Update progress for a course
  */
 export const UpdateCourseProgressParams = zod.object({
